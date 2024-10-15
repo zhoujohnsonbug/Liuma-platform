@@ -72,7 +72,8 @@ public class NotificationService {
                 replace("{caseFail}", report.getFailCount().toString()).
                 replace("{caseError}", report.getErrorCount().toString()).
                 replace("{successPercent}", report.getPassRate()).
-                replace("{executeTime}", during +"S");
+                replace("{executeTime}", during +"S").
+                replace("{reportUrl}", "http://127.0.0.1:8888/#/report/testReport1/detail/"+report.getId());
         // 发送
         HttpUtil.post(notification.getWebhookUrl(), params);
     }

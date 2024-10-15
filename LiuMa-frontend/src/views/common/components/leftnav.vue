@@ -6,7 +6,7 @@
   <el-menu :collapse="collapsed" collapse-transition router unique-opened class="el-menu-vertical-demo" background-color="#334157" text-color="#fff" active-text-color="#ffd04b">
     <div class="logobox" @click="toggle(collapsed)">
       <img class="logoimg" src="../../../assets/img/logo.png" alt="">
-      <span :class="pftitle">流马测试平台</span>
+      <span :class="pftitle">问卷星测试平台</span>
     </div>
     <el-submenu v-for="menu in allmenu" :key="menu.id" :index="menu.name" class="el-menu-item-demo">
       <template slot="title">
@@ -45,7 +45,7 @@ export default {
     getMenus() {
       let url = "/autotest/menu/list?userId="+ this.$store.state.userInfo.id + "&projectId=" + this.$store.state.projectId;
       this.$get(url, response => {
-        this.allmenu = response.data;  
+        this.allmenu = response.data;
       });
     },
     // 切换显示
@@ -92,7 +92,7 @@ export default {
 }
 .logoimg {
   color: #ffffff;
-  height: 28px;
+  height: 20px;
   vertical-align: middle;
 }
 .title-hidden{

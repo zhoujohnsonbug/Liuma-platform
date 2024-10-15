@@ -2,7 +2,7 @@
   <div class="login-wrap">
     <div class="welcome-title">
       <img class="logoimg" src="../assets/img/logo.png">
-      <span>欢 迎 使 用 流 马 测 试 平 台</span>
+      <span>欢 迎 使 用 问 卷 星 测 试 平 台</span>
     </div>
     <el-form label-position="left" :model="loginForm" :rules="rules" ref="loginForm" label-width="0px" class="demo-loginForm login-container">
       <h3 class="title">用户登录</h3>
@@ -134,7 +134,7 @@ export default {
               let url = '/autotest/register';
               let Base64 = require('js-base64').Base64;
               this.registerForm.password = Base64.encode(this.registerForm.newPassword);
-              this.registerForm.account = this.registerForm.newAccount;  
+              this.registerForm.account = this.registerForm.newAccount;
               this.$post(url, this.registerForm, response =>{
                 if(response.data !== "注册成功"){
                   this.$message.warning(response.data);
@@ -156,7 +156,7 @@ export default {
           let loginForm = {
             account: this.loginForm.account,
             password: Base64.encode(this.loginForm.password)
-          }; 
+          };
           this.$login("/autotest/login", loginForm, response => {
             if (response.data.status === 0) {
               if (this.rememberpwd) {
@@ -186,7 +186,7 @@ export default {
               return false;
             }
           })
-        } 
+        }
       })
     },
   }

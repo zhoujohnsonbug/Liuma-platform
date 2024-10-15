@@ -4,6 +4,8 @@ public enum RequestPath {
     
     LOGIN_PATH("^/autotest/login$"),
     REGISTER_PATH("^/autotest/register$"),
+
+    REPORT_PATH("^/autotest/report/runNoToken/.+$"),
     ENGINE_TOKEN_PATH("^/openapi/engine/token/apply$"),
     SCREENSHOT_PATH("^/openapi/screenshot/.+$"),
     DOWNLOAD_PATH("^/openapi/download/.+$"),
