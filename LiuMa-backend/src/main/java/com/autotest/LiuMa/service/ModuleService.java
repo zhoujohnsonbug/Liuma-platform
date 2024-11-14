@@ -40,6 +40,19 @@ public class ModuleService {
         return module;
     }
 
+
+    public ModuleDTO edit(ModuleDTO module) {
+        if (module.getId() != null) {
+            module.setUpdateTime(System.currentTimeMillis());
+            module.setUpdateUser(module.getUpdateUser());
+            moduleMapper.editModule(module);
+        } else {
+            throw new LMException("id为空，无法修改！");
+        }
+        return module;
+
+    }
+
     public void delete(ModuleDTO module) {
         Integer count = moduleMapper.getModuleDataById(module.getModuleType(), module.getId());
         if(count>0){

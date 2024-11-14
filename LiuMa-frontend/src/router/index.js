@@ -399,7 +399,7 @@ export default new Router({
             component: ReportDetail,
             meta: {
                 requirePerm: "NORMAL_MENU",
-                requireAuth: true
+                requireAuth: false
             }
         },{
             path: '/setting/systemSetting',

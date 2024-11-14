@@ -13,17 +13,20 @@
     "echarts": "^5.2.0-rc.2",
     "element-resize-detector": "^1.2.4",
     "element-ui": "^2.3.2",
+    "file-saver": "^2.0.5",
     "http-proxy-middleware": "^0.18.0",
     "jmuxer": "^2.0.5",
     "jquery": "^3.6.3",
     "js-md5": "^0.7.3",
     "jsoneditor": "^9.5.3",
+    "moment": "^2.29.4",
     "sortablejs": "^1.14.0",
     "vconsole": "^3.9.1",
     "vue": "^2.5.2",
     "vue-json-editor": "^1.4.3",
     "vue-router": "^3.0.1",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "ajv": "^7.2.4",

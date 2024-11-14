@@ -13,6 +13,21 @@
       ,parent_id = #{parentId}
     </if>
   </insert>
+
+  <update id="editModule" parameterType="com.autotest.LiuMa.dto.ModuleDTO">
+
+    update ${moduleType} set
+
+    <if test="name != null and name != ''">
+      name = #{name}
+    </if>
+    ,update_time = #{updateTime}, update_user = #{updateUser} where
+    <if test="name != null and name != ''">
+      id= #{id}
+    </if>
+
+  </update>
+
   <select id="getModuleList" parameterType="java.lang.String" resultType="com.autotest.LiuMa.dto.ModuleDTO">
     select *, name as label, '${moduleType}_module' as moduleType from ${moduleType}_module where project_id = #{projectId} order by create_time
   </select>

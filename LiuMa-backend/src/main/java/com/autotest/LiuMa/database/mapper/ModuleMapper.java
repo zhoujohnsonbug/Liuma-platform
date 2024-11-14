@@ -9,6 +9,7 @@ import java.util.List;
 public interface ModuleMapper {
     void saveModule(ModuleDTO module);
 
+    void editModule(ModuleDTO module);
     void deleteModule(String moduleType, String id);
 
     ModuleDTO getModuleByParentAndName(String moduleType, String name, String parentId, String projectId);

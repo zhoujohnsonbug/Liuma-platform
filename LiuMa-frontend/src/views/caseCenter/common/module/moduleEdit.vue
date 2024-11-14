@@ -1,17 +1,17 @@
 /**
 * 模块新增
-*/
+*/ 
 <template>
     <div>
-        <!-- 添加模块界面 -->
-      <el-dialog :title="title" :visible.sync="showDialog" width="35%" destroy-on-close @close="cancel">
+        <!-- 编辑模块界面 -->
+        <el-dialog :title="title" :visible.sync="showDialog" width="35%" destroy-on-close @close="cancel">
             <el-form label-width="120px" style="padding-right: 30px;" :model="moduleForm" :rules="rules" ref="moduleForm">
                 <el-form-item label="模块名称" prop="name">
                     <el-input size="small" v-model="moduleForm.name" auto-complete="off" placeholder="模块名称"></el-input>
                 </el-form-item>
-                <el-form-item label="所属父级" prop="parentName">
+                <!-- <el-form-item label="所属父级" prop="parentName">
                     <el-input size="small" v-model="moduleForm.parentName" auto-complete="off" placeholder="所属父级" :disabled="true"></el-input>
-                </el-form-item>
+                </el-form-item> -->
             </el-form>
             <div slot="footer" class="dialog-footer">
                 <el-button size="small" @click="cancel">取消</el-button>
@@ -22,7 +22,7 @@
 </template>
 <script>
 export default {
-    name: 'ModuleAppend',
+    name: 'ModuleEdit',
     props:{
         title:String,
         show:{
@@ -32,20 +32,20 @@ export default {
         moduleForm:Object,
     },
     computed:{
-      showDialog:{
-        // getter
-        get: function () {
-          return this.show
-        },
-        // setter
-        set: function (newValue) {}
-      }
+        showDialog:{
+            // getter
+            get: function () {
+                return this.show
+            },
+            // setter
+            set: function (newValue) {}
+        }
     },
     data(){
         return{
             rules: {
                 name: [{ required: true, message: '模块名称不能为空', trigger: 'blur' }],
-                parentName: [{ required: true, message: '所属父级不能为空', trigger: 'blur' }]
+                // parentName: [{ required: true, message: '所属父级不能为空', trigger: 'blur' }]
             },
         }
     },

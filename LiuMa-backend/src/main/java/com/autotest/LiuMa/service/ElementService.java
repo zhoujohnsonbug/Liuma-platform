@@ -3,6 +3,7 @@ package com.autotest.LiuMa.service;
 import com.autotest.LiuMa.database.domain.Element;
 import com.autotest.LiuMa.database.mapper.ElementMapper;
 import com.autotest.LiuMa.dto.ElementDTO;
+import com.autotest.LiuMa.dto.ElementImportDTO;
 import com.autotest.LiuMa.request.QueryRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,6 +46,25 @@ public class ElementService {
             request.setCondition("%"+request.getCondition()+"%");
         }
         return elementMapper.getElementList(request);
+    }
+
+    public void importElement(ElementImportDTO elementImportDTO) {
+        Element element = new Element();
+        element.setId(UUID.randomUUID().toString());
+        element.setCreateTime(System.currentTimeMillis());
+        element.setUpdateTime(System.currentTimeMillis());
+        element.setCreateUser(elementImportDTO.getUpdateUser());
+        element.setUpdateUser(elementImportDTO.getUpdateUser());
+        element.setStatus("Normal");
+        element.setProjectId(elementImportDTO.getProjectId());
+        element.setModuleId(elementImportDTO.getModuleId());
+        element.setBy(elementImportDTO.getBy());
+        element.setName(elementImportDTO.getName());
+        element.setExpression(elementImportDTO.getExpression());
+        element.setDescription(elementImportDTO.getDescription());
+        elementMapper.addElement(element);
+
+
     }
 
 }

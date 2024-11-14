@@ -13,12 +13,15 @@
             <el-button size="small" @click="reset">重置</el-button>
         </el-form-item>
         <el-form-item style="float: right">
+          <el-button size="small" type="success" icon="el-icon-plus" @click="importElement">导入元素</el-button>
+        </el-form-item>
+        <el-form-item style="float: right">
             <el-button size="small" type="primary" icon="el-icon-plus" @click="addElement">新增元素</el-button>
         </el-form-item>
     </el-form>
     <!-- 页面模块 -->
     <el-col :span="4" class="left-tree">
-        <module-tree title="页面模块" :treeData="treeData" :currentModule="searchForm.moduleId" @clickModule="clickModule($event)" @appendModule="appendModule($event)"
+      <module-tree title="页面模块" :treeData="treeData" :currentModule="searchForm.moduleId" @clickModule="clickModule($event)" @appendModule="appendModule($event)" @editModule="editModule($event)"
             @removeModule="removeModule(arguments)" @dragNode="dragNode(arguments)"/>
     </el-col>
     <!-- 元素列表 -->
@@ -35,6 +38,7 @@
             <el-table-column fixed="right" align="operation" label="操作" width="100">
                 <template slot-scope="scope">
                     <el-button type="text" size="mini" @click="editElement(scope.row)">编辑</el-button>
+                    <el-button type="text" size="mini" @click="editElement(scope.row, 'copy')">复用</el-button>
                     <el-button type="text" size="mini" @click="deleteElement(scope.row)">删除</el-button>
                 </template>
             </el-table-column>
@@ -44,6 +48,8 @@
     </el-col>
     <!-- 添加模块弹框 -->
     <module-append title="添加页面模块" :show.sync="moduleVisible" :moduleForm="moduleForm" @closeDialog="closeDialog" @submitModule="submitModule($event)"/>
+    <!-- 编辑模块弹框 -->
+    <module-edit title="编辑页面模块" :show.sync="editModuleVisible" :moduleForm="editModuleForm" @closeDialog="editCloseDialog" @submitModule="editSubmitModule($event)"/>
     <!-- 添加元素弹框 -->
     <el-dialog title="编辑元素" :visible.sync="elementVisible" width="40%" destroy-on-close>
         <el-form label-width="120px" style="padding-right: 30px;" :model="addElementForm" :rules="rules" ref="addElementForm">
@@ -59,7 +65,7 @@
                 <el-input size="small" style="width:95%" v-model="addElementForm.expression" auto-complete="off" placeholder="表达式"/>
             </el-form-item>
             <el-form-item label="所属页面" prop="moduleId">
-                <select-tree style="width:95%;" placeholder="所属页面" :selectedValue="addElementForm.moduleId" :selectedLabel="addElementForm.moduleName" :treeData="treeData" @selectModule="selectModule($event)"/>
+              <select-tree style="width:95%;" placeholder="所属页面" :selectedValue="addElementForm.moduleId" :selectedLabel="addElementForm.moduleName" :treeData="treeData" @selectModule="selectModule1($event)"/>
             </el-form-item>
             <el-form-item label="元素描述">
                 <el-input size="small" style="width:95%" v-model="addElementForm.description" :autosize="{ minRows: 3}" type="textarea" maxlength="200" show-word-limit auto-complete="off" placeholder="元素描述"/>
@@ -69,6 +75,32 @@
             <el-button size="small" @click="elementVisible=false">取消</el-button>
             <el-button size="small" type="primary" @click="submitElement">确定</el-button>
         </div>
+
+    </el-dialog>
+    <!--上传文件的弹窗-->
+    <el-dialog title="上传文件" :visible.sync="uploadFileVisible" width="600px" destroy-on-close>
+      <el-form label-width="120px" style="padding-right: 30px;" :model="uploadFileForm" :rules="rules" ref="uploadFileForm">
+
+        <el-form-item label="选择模块" prop="moduleId">
+          <select-tree style="width:90%" placeholder="请选择导入后的模块" :selectedValue="uploadFileForm.moduleId"
+                       :selectedLabel="uploadFileForm.moduleName" :treeData="treeData" @selectModule="selectModule($event)"/>
+        </el-form-item>
+        <el-form-item label="选择文件" prop="fileList">
+          <el-upload class="upload-demo" :file-list="uploadFileForm.fileList" :before-upload="beforeUpload" :http-request="uploadFile"
+                     :on-remove="removeFile" :on-exceed="handleExceed" drag action :limit="1" ref="upload">
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text">将文件拖到此处，或<em>点击上传</em></div>
+            <div class="el-upload__tip" slot="tip" style="color: red;">只能上传单个excel文件，且不超过50M</div>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <div style="float: left">
+          <el-button size="small" type="primary" icon="el-icon-download" @click="downloadExcel">下载Excel导入模板</el-button>
+        </div>
+        <el-button size="small" @click="uploadFileVisible=false">取消</el-button>
+        <el-button size="small" type="primary" v-loading.fullscreen.lock="fullscreenLoading" element-loading-text="正在导入，请稍等..." @click="submitFileForm('uploadFileForm', uploadFileForm)">上传</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -77,24 +109,37 @@
 import Pagination from '../common/components/pagination'
 import ModuleTree from './common/module/moduleTree'
 import ModuleAppend from './common/module/moduleAppend'
+import ModuleEdit from './common/module/moduleEdit'
 import SelectTree from '../common/business/selectTree'
 import {timestampToTime} from '@/utils/util'
 
 export default {
     // 注册组件
     components: {
-        Pagination, ModuleTree, ModuleAppend, SelectTree
+        Pagination, ModuleTree, ModuleAppend, SelectTree,ModuleEdit
     },
     data() {
         return{
+            uploadFileVisible: false,
+            fullscreenLoading: false,
+            uploadFileForm : {
+              fileList: [],
+              moduleId:"",
+              moduleName:""
+            },
             loading:false,
             moduleVisible: false,
+            editModuleVisible: false,
             elementVisible: false,
             moduleForm: {
                 moduleName: "",
                 parentId: "",
                 parentName: "",
                 data: "",
+            },
+            editModuleForm: {
+              name: "",
+              id: "",
             },
             byList:[
                 { label: "ID", value: "ID" },
@@ -131,6 +176,7 @@ export default {
             rules: {
                 name: [{ required: true, message: '元素名称不能为空', trigger: 'blur' }],
                 by: [{ required: true, message: '定位方式不能为空', trigger: 'blur' }],
+                fileList: [{ required: true, message: '文件不能为空', trigger: 'blur' }],
                 expression: [{ required: true, message: '表达式不能为空', trigger: 'blur' }]
             }
         }
@@ -141,6 +187,83 @@ export default {
         this.getdata(this.searchForm)
     },
     methods: {
+
+        // 上传前判断格式和大小
+        beforeUpload(file) {
+          if (file.size > 50 * 1024 * 1024) {
+            this.$message.warning('文件大小超过50M 无法上传');
+            return false;
+          }
+          let fileName = file.name;
+          let pos = fileName.lastIndexOf(".");
+          let lastName = fileName.substring(pos, fileName.length);
+          console.log(lastName,lastName.toLowerCase());
+          if (
+            lastName.toLowerCase() !== ".xls"&&
+            lastName.toLowerCase() !== ".xlsx"
+          ) {
+            this.$message.error("文件必须为 .xls .xlsx类型");
+            // this.$refs.uploadFile.clearFiles();
+            return false;
+          }
+          return true;
+        },
+        uploadFile(option) {
+          this.uploadFileForm.fileList.push(option.file);
+          this.uploadFileForm.name = option.file.name;
+          this.$refs.uploadFileForm.validateField('fileList');
+        },
+        removeFile() {
+          this.uploadFileForm.fileList = [];
+        },
+        handleExceed() {
+          this.$message.warning('一次最多只能上传一个文件');
+        },
+        selectModule(data){
+          this.uploadFileForm.moduleId = data.id;
+          this.uploadFileForm.moduleName = data.label;
+
+        },
+        submitFileForm(confirm, form){
+
+          this.$refs[confirm].validate(valid => {
+            if (valid) {
+              this.fullscreenLoading = true;
+              let url = '/autotest/element/import';
+              let data = {
+                projectId: this.$store.state.projectId,
+                moduleId: form.moduleId
+              };
+              let file = form.fileList[0];
+              this.$fileUpload(url, file, null, data, response =>{
+                this.$message.success(response.data);
+                this.uploadFileVisible = false;
+                this.uploadFileForm.fileList=[];
+                this.getdata(this.searchForm);
+                this.fullscreenLoading = false;
+              });
+              setTimeout(() => {
+                this.fullscreenLoading = false;
+              }, 120000);
+
+            }else{
+              return false;
+            }
+          });
+        },
+        downloadExcel(){
+          let url = '/autotest/element/download_template';
+          let data = {
+            projectId: this.$store.state.projectId,
+          };
+          this.$fileDownload(url, response =>{
+            this.$message.success("下载成功");
+
+          });
+        },
+        importElement(){
+          this.uploadFileVisible = true;
+        },
         // 点击模块
         clickModule(data){
           this.searchForm.moduleId = data.id;
@@ -158,6 +281,17 @@ export default {
                 this.moduleForm.data = "";
             }
             this.moduleVisible = true;
+        },
+        // 编辑模块
+        editModule(data) {
+          console.log(data)
+          if (data){
+            this.editModuleForm.id = data.id;
+            this.editModuleForm.name = data.label;
+            // this.editModuleForm.data = data;
+
+          }
+          this.editModuleVisible = true;
         },
         // 删除模块
         removeModule(args) {
@@ -209,6 +343,21 @@ export default {
                 this.moduleVisible = false;
                 this.moduleForm.name = "";
             });
+        },
+        editCloseDialog(){
+          this.editModuleVisible = false;
+        },
+        // 编辑保存模块
+        editSubmitModule(moduleForm) {
+          moduleForm.projectId = this.$store.state.projectId;
+          moduleForm.moduleType = 'page_module';
+          console.log(moduleForm)
+          let url = '/autotest/module/edit';
+          this.$post(url, moduleForm, response =>{
+            this.editModuleVisible = false;
+            this.editModuleForm.name = "";
+            this.getTree()
+          });
         },
         // 获取树数据
         getTree(){
@@ -272,7 +421,7 @@ export default {
             };
             this.elementVisible = true;
         },
-        selectModule(data){
+        selectModule1(data){
             this.addElementForm.moduleId = data.id;
             this.addElementForm.moduleName = data.label;
         },
@@ -296,8 +445,9 @@ export default {
             })
         },
         // 编辑元素
-        editElement(row){
-            this.addElementForm.id = row.id;
+          editElement(row, type=null){
+
+            this.addElementForm.id = type==="copy"?'':row.id;
             this.addElementForm.name = row.name;
             this.addElementForm.by = row.by;
             this.addElementForm.expression = row.expression;

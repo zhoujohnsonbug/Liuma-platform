@@ -28,7 +28,7 @@
     </el-form>
     <!-- 用例模块 -->
     <el-col :span="4" class="left-tree">
-        <module-tree title="用例模块" :treeData="treeData" :currentModule="searchForm.moduleId" @clickModule="clickModule($event)" @appendModule="appendModule($event)"
+        <module-tree title="用例模块" :treeData="treeData" :currentModule="searchForm.moduleId" @clickModule="clickModule($event)" @appendModule="appendModule($event)" @editModule="editModule($event)"
              @removeModule="removeModule(arguments)" @dragNode="dragNode(arguments)"/>
     </el-col>
     <!-- 用例列表 -->
@@ -66,6 +66,8 @@
     </el-col>
     <!-- 添加模块弹框 -->
     <module-append title="添加用例模块" :show.sync="moduleVisible" :moduleForm="moduleForm" @closeDialog="closeDialog" @submitModule="submitModule($event)"/>
+    <!-- 编辑模块弹框 -->
+    <module-edit title="编辑页面模块" :show.sync="editModuleVisible" :moduleForm="editModuleForm" @closeDialog="editCloseDialog" @submitModule="editSubmitModule($event)"/>
     <!-- 添加用例弹框 -->
     <el-dialog title="选择用例类型" :visible.sync="caseVisible" width="500px" destroy-on-close>
         <el-radio-group style="margin-left:15px;" v-model="newCaseType">
@@ -97,12 +99,13 @@ import RunResult from './common/case/runResult'
 export default {
     // 注册组件
     components: {
-        Pagination, ModuleTree, ModuleAppend, RunForm, RunResult
+        Pagination, ModuleTree, ModuleAppend, RunForm, RunResult,ModuleEdit
     },
     data() {
         return{
             loading:false,
             moduleVisible: false,
+            editModuleVisible: false,
             caseVisible: false,
             moduleForm: {
                 name: "",
@@ -120,6 +123,10 @@ export default {
                 caseType: "",
                 moduleId: "",
                 system: ""
+            },
+            editModuleForm: {
+              name: "",
+              id: "",
             },
             caseListData: [],
             pageParam: {
@@ -165,6 +172,17 @@ export default {
                 this.moduleForm.data = "";
             }
             this.moduleVisible = true;
+        },
+        // 编辑模块
+        editModule(data) {
+          console.log(data)
+          if (data){
+            this.editModuleForm.id = data.id;
+            this.editModuleForm.name = data.label;
+            // this.editModuleForm.data = data;
+
+          }
+          this.editModuleVisible = true;
         },
         // 删除模块
         removeModule(args) {
@@ -216,6 +234,22 @@ export default {
                 this.moduleVisible = false;
                 this.moduleForm.name = "";
             });
+        },
+
+        editCloseDialog(){
+          this.editModuleVisible = false;
+        },
+        // 编辑保存模块
+        editSubmitModule(moduleForm) {
+          moduleForm.projectId = this.$store.state.projectId;
+          moduleForm.moduleType = 'case_module';
+          console.log(moduleForm)
+          let url = '/autotest/module/edit';
+          this.$post(url, moduleForm, response =>{
+            this.editModuleVisible = false;
+            this.editModuleForm.name = "";
+            this.getTree()
+          });
         },
         // 获取树数据
         getTree(){
@@ -281,7 +315,7 @@ export default {
                 this.$router.push({path: '/caseCenter/caseManage/apiCase/add'});
             }else if (this.newCaseType == "WEB"){
                 this.$router.push({path: '/caseCenter/caseManage/webCase/add'});
-            }else if (this.newCaseType == "ANDROID"){ 
+            }else if (this.newCaseType == "ANDROID"){
                 this.$router.push({path: '/caseCenter/caseManage/appCase/android/add'});
             }else if (this.newCaseType == "APPLE"){
                 this.$router.push({path: '/caseCenter/caseManage/appCase/apple/add'});
@@ -321,7 +355,7 @@ export default {
             this.runForm.environmentId = null;
             this.runForm.deviceId = null;
             let environmentIds = JSON.parse(row.environmentIds);
-            
+
             this.runForm.sourceType = "case";
             this.runForm.sourceId = row.id;
             this.runForm.sourceName = row.name;

@@ -1,10 +1,12 @@
 package com.autotest.LiuMa.database.domain;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.io.Serializable;
 
 @Data
+@ToString
 public class Element implements Serializable {
     private String id;
 

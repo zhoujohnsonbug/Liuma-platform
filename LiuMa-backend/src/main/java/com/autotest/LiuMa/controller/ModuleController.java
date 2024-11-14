@@ -25,6 +25,13 @@ public class ModuleController {
         return moduleService.save(moduleDTO);
     }
 
+    @PostMapping("/edit")
+    public ModuleDTO edit(@RequestBody ModuleDTO moduleDTO, HttpServletRequest request) {
+        String user = request.getSession().getAttribute("userId").toString();
+        moduleDTO.setUpdateUser(user);
+        return moduleService.edit(moduleDTO);
+    }
+
     @PostMapping("/delete")
     public void delete(@RequestBody ModuleDTO moduleDTO) {
         moduleService.delete(moduleDTO);

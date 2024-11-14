@@ -24,6 +24,10 @@ Vue.prototype.$axios = axios;
 
 Vue.config.productionTip = false;
 
+// 修改 el-dialog 默认点击遮照不关闭
+ElementUI.Dialog.props.closeOnClickModal.default = false
+
+
 // 过滤器
 import * as custom from './utils/util'
 Object.keys(custom).forEach(key => {

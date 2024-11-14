@@ -37,8 +37,11 @@
                 <span v-else>{{scope.row.description}} <i class="el-icon-edit"  @click="scope.row.edit=true"/></span>
             </template>
         </el-table-column>
-        <el-table-column label="操作" width="150px">
+        <el-table-column label="操作" width="300px">
             <template slot-scope="scope">
+                <el-button size="mini" type="text" @click="open(caseForm.caseWebs.length,scope.$index)">移至</el-button>
+                <el-button size="mini" type="text" @click="setPosition(0,scope.$index)">置顶</el-button>
+                <el-button size="mini" type="text" @click="setPosition(caseForm.caseWebs.length-1,scope.$index)">置底</el-button>
                 <el-button size="mini" type="text" @click="editCaseWeb(scope.$index, scope.row)">编辑</el-button>
                 <el-button size="mini" type="text" @click="copyCaseWeb(scope.row)">复用</el-button>
                 <el-button size="mini" type="text" @click="deleteCaseWeb(scope.$index)">删除</el-button>
@@ -111,9 +114,13 @@
             </el-row>
           </el-form-item>
         </el-form>
+        <div v-if="showInsert">
+          指定插入位置：<el-input v-model="newplace" size= "mini" @blur="checkNum"	 style="width: 60px;" clearable>
+        </el-input><span v-show="flag" style="color: red;">请输入正确的数值参数!</span>
+        </div>
         <div slot="footer" class="dialog-footer">
             <el-button size="small" @click="editOperationVisible=false">取消</el-button>
-            <el-button size="small" type="primary" @click="saveOperationEdit('operationForm', operationForm)">保存</el-button>
+            <el-button size="small" type="primary" @click="saveOperationEdit('operationForm', operationForm,newplace)">保存</el-button>
         </div>
     </el-dialog>
     <!-- 用例调试选择引擎和环境 -->
@@ -136,6 +143,9 @@ export default {
     components:{PageHeader, BaseInfo, RunForm, SelectTree, RunResult},
     data() {
         return{
+            showInsert: false,
+            newplace: 0,
+            flag: false,
             caseForm: {
                 id: "",
                 name: "",
@@ -203,7 +213,56 @@ export default {
         this.getDetail(this.$route.params);
     },
     methods: {
-        // 行拖拽
+
+      checkNum:function() {
+        var num = this.newplace;
+        for (var i = 1; i < num.length; i++) {
+          if (!('0123456789'.indexOf(num.substr(i, 1)) > -1)) {
+            this.flag=true;
+          }else{
+            this.flag=false;
+          }
+        };
+      },
+
+      open(stepSize,oldIndex) {
+        this.$prompt('请要移动到的位置', '移至', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputPattern: /^[1-9]\d*$/,
+          inputErrorMessage: '输入的数字不正确'
+        }).then(({ value }) => {
+          if(value<=stepSize){
+
+            console.log("new1 "+value);
+            console.log("old1 "+oldIndex);
+            const _this = this;
+            const currRow = _this.caseForm.caseWebs.splice(oldIndex, 1)[0];
+            _this.caseForm.caseWebs.splice(value-1, 0,currRow);
+            _this.sortCaseWeb();
+            this.$message({
+              type: 'success',
+              message: '步骤是: ' + value
+
+
+            });
+          }
+          else{
+            this.$message({
+              type: 'info',
+              message: '超过最大步骤了'
+            });
+          }
+
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '取消输入'
+          });
+        });
+      },
+
+      // 行拖拽
         rowDrop () {
             // 此时找到的元素是要拖拽元素的父容器
             const tbody = document.querySelector('.sort-table tbody');
@@ -212,13 +271,24 @@ export default {
                 //  指定父元素下可被拖拽的子元素
                 draggable: ".el-table__row",
                 onEnd ({ newIndex, oldIndex }) {
+                    console.log("new "+newIndex);
+                    console.log("old "+oldIndex);
                     const currRow = _this.caseForm.caseWebs.splice(oldIndex, 1)[0];
                     _this.caseForm.caseWebs.splice(newIndex, 0, currRow);
                     _this.sortCaseWeb();
                 }
             });
         },
-        // 重新排序
+        setPosition(newIndex,oldIndex){
+          console.log("new "+newIndex);
+          console.log("old "+oldIndex);
+          const _this = this;
+          const currRow = _this.caseForm.caseWebs.splice(oldIndex, 1)[0];
+          _this.caseForm.caseWebs.splice(newIndex, 0,currRow);
+          _this.sortCaseWeb();
+        },
+
+      // 重新排序
         sortCaseWeb(){
             for(let i=0; i<this.caseForm.caseWebs.length; i++){
                 this.caseForm.caseWebs[i].index = i+1;
@@ -288,6 +358,7 @@ export default {
           return text;
         },
         addCaseWeb(index){
+          this.showInsert=true,
           this.operationForm =  {
               id: getUUID(),
               index: index,
@@ -302,7 +373,8 @@ export default {
           this.editOperationVisible = true;
         },
         editCaseWeb(index, row){
-          this.operationForm = {
+            this.showInsert=false,
+            this.operationForm = {
             id: row.id,
             index: index,
             operationIds: row.operationIds,
@@ -323,6 +395,7 @@ export default {
           this.editOperationVisible = true;
         },
         copyCaseWeb(row){
+          this.showInsert=true
           this.operationForm = {
             id: getUUID(),
             index: -1,
@@ -396,14 +469,19 @@ export default {
             }
             this.getElements(data.id, element);
         },
-        saveOperationEdit(confirm, form){
+        saveOperationEdit(confirm, form,newplace){
           this.$refs[confirm].validate(valid => {
               if (valid) {
                 form.elementText = this.elementToText(form.element);
                 form.dataText = this.dataToText(form.data);
+                console.log(form.index)
                 if(form.index === -1){
                   form.index = this.caseForm.caseWebs.length + 1;
                   this.caseForm.caseWebs.push(form);
+                  if(newplace >0){
+                    this.setPosition(newplace-1,-1);
+                  }
+                  this.newplace=0
                 }else{
                   form.index = form.index + 1;
                   this.$set(this.caseForm.caseWebs, form.index-1, form);
