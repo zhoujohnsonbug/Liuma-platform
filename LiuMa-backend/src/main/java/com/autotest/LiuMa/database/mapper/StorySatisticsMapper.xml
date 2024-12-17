@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.autotest.LiuMa.database.mapper.StorySatisticsMapper">
+
+  <update id="updateStorySatistics" parameterType="com.autotest.LiuMa.database.domain.StorySatistics">
+    update story_statistics set
+    <if test="statusAlias!=null and statusAlias !=''">
+      status_alias= #{statusAlias},
+    </if>
+    <if test="status!=null and status !=''">
+      status= #{status},
+    </if>
+    <if test="owner!=null and owner !=''">
+      owner= #{owner},
+    </if>
+    <if test="releasePlan!=null and releasePlan !=''">
+      release_plan= #{releasePlan},
+    </if>
+    <if test="statusSort!=null and statusSort !=''">
+      status_sort= #{statusSort},
+    </if>
+    <if test="updateTime!=null and updateTime !=''">
+      update_time= #{updateTime}
+    </if>
+     where story_id = #{storyId}
+  </update>
+
+  <insert id="saveStorySatistics" parameterType="com.autotest.LiuMa.database.domain.StorySatistics">
+    insert into  story_statistics(id,story_id,short_id,story_name,status_alias,status,owner,release_plan,story_url,deleted,create_time,update_time,workspace_id,status_sort) values (#{id},#{storyId},#{shortId},#{storyName},#{statusAlias},#{status},#{owner},#{releasePlan},#{storyUrl},#{deleted},#{createTime},#{updateTime},#{workspaceId},#{statusSort})
+  </insert>
+
+
+  <delete id="deleteStorySatistics" parameterType="java.lang.String">
+    update story_statistics set deleted = '1' where short_id = #{shortId}
+  </delete>
+
+  <select id="getAllStorySatistics"  resultType="com.autotest.LiuMa.database.domain.StorySatistics">
+    select * from story_statistics where deleted=0 and status!="resolved"
+  </select>
+
+  <select id="getStorySatisticsByStoryId" parameterType="java.lang.String" resultType="com.autotest.LiuMa.database.domain.StorySatistics">
+    select * from story_statistics where story_id = #{storyId} and deleted=0
+  </select>
+
+</mapper>

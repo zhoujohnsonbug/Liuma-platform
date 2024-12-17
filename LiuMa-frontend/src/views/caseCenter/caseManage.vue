@@ -95,6 +95,7 @@ import ModuleAppend from './common/module/moduleAppend'
 import {timestampToTime} from '@/utils/util'
 import RunForm from '@/views/common/business/runForm'
 import RunResult from './common/case/runResult'
+import ModuleEdit from './common/module/moduleEdit'
 
 export default {
     // 注册组件

@@ -71,6 +71,9 @@ const PlanEdit= () => import('@/views/planCenter/planEdit');
 const TestReport= () => import('@/views/report/testReport');
 // 引擎管理
 const ReportDetail= () => import('@/views/report/reportDetail');
+
+const ReportDetail1= () => import('@/views/report/reportDetailNoToken');
+
 /**
  * 配置中心
  */
@@ -87,6 +90,12 @@ const projectManage= () => import('@/views/system/project');
 const RoleManage= () => import('@/views/system/role');
 // 用户管理
 const userManage= () => import('@/views/system/user');
+
+// 测试管理工具
+const TestManage= () => import('@/views/testManage/testerNotification');
+const TestToolsCollect= () => import('@/views/testManage/testToolsCollect');
+
+
 
 
 // 启用路由
@@ -402,6 +411,14 @@ export default new Router({
                 requireAuth: false
             }
         },{
+          path: '/report/testReport1/detail/:reportId',
+          name: '报告详情',
+          component: ReportDetail1,
+          meta: {
+            requirePerm: "NORMAL_MENU",
+            requireAuth: false
+          }
+        },{
             path: '/setting/systemSetting',
             name: '系统配置',
             component: SystemSetting,
@@ -440,6 +457,17 @@ export default new Router({
                 requirePerm: "USER_MENU",
                 requireAuth: true
             }
-        }]
+        },{
+          path: '/testManage/testerNotification',
+          name: '测试者通知',
+          component: TestManage,
+          meta: {
+            requirePerm: "NORMAL_MENU",
+            requireAuth: true
+          }
+        }
+
+
+        ]
     }]
 })

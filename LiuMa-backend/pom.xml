@@ -190,6 +190,19 @@
 			<version>0.1.55</version>
 		</dependency>
 
+		<!-- selenium的依赖 -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>3.141.59</version>
+		</dependency>
+		<!-- chrome-driver依赖，使用那个浏览器添加那个浏览器即可 谷歌驱动 -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-chrome-driver</artifactId>
+			<version>3.141.59</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>

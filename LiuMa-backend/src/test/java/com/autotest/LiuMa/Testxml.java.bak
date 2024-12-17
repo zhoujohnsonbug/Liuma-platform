@@ -1,0 +1,198 @@
+package com.autotest.LiuMa;
+
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.SerializableString;
+import com.fasterxml.jackson.core.io.CharacterEscapes;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.sun.deploy.net.URLEncoder;
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import sun.security.util.Password;
+
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.X509EncodedKeySpec;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+
+public class Testxml {
+
+    public static void main(String[] args) throws JsonProcessingException {
+        try {
+            Date now = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy h:mm:ss a", Locale.ENGLISH);
+            String starttime1 = sdf.format(now);
+            String starttime = URLEncoder.encode(starttime1, "UTF-8");
+            System.out.println("时间： "+starttime);
+            String activityId = "7I503";
+            String adminCookie = getAdminCookie();
+            System.out.println(adminCookie);
+            String xml = getxmlData(adminCookie,activityId);
+            String responseData = getResponseData(xml);
+            System.out.println(responseData);
+            String UserName = "971012568@qq.com";
+            String Password = "11111111";
+            String token = getToken(UserName, Password);
+            System.out.println(token);
+            String answer = getAnswer(token, responseData,starttime,activityId);
+            System.out.println(answer);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+//        String getXml = "https://plutoadmin.sojump.cn/Activity/GetActivityXML?activityId=mcppt";
+
+
+
+
+
+
+
+//        String xmlStr = "<?xml version=\"1.0\" encoding=\"utf-8\"?><Questionnaire ActivityId=\"mcppt\" Title=\"单选题\" Desc=\"\" Complete=\"\"><Question Type=\"page\" Topic=\"1\" Title=\"\" MinTime=\"\" MaxTime=\"\" /><Question Type=\"radio\" Topic=\"1\" Title=\"发的开了房山东矿机焚枯食淡放假快乐几款了见风使舵\" NumPerRow=\"1\" RandomChoice=\"false\" HasValue=\"false\" Requir=\"true\" HasJump=\"false\" AnytimeJumpto=\"0\" Ins=\"\"><Item ItemTitle=\"发生大房间萨卡掉了芙卡洛斯极度分裂\" ItemRadio=\"false\" ItemValue=\"1\" ItemJump=\"0\" ItemTextBox=\"true\" /><Item ItemTitle=\"发卡量房间卡圣诞节疯狂零售价大开发\" ItemRadio=\"false\" ItemValue=\"2\" ItemJump=\"0\" /></Question><Question Type=\"radio\" Topic=\"2\" Title=\"Question\" NumPerRow=\"1\" RandomChoice=\"false\" HasValue=\"false\" Requir=\"true\" HasJump=\"false\" AnytimeJumpto=\"0\" Ins=\"\"><Item ItemTitle=\"Options4\" ItemRadio=\"false\" ItemValue=\"1\" ItemJump=\"0\" /><Item ItemTitle=\"Options5\" ItemRadio=\"false\" ItemValue=\"2\" ItemJump=\"0\" /><Item ItemTitle=\"Options6\" ItemRadio=\"false\" ItemValue=\"3\" ItemJump=\"\" /><Item ItemTitle=\"Options7\" ItemRadio=\"false\" ItemValue=\"4\" ItemJump=\"\" /></Question></Questionnaire>";
+
+
+    }
+
+    public static String getAdminCookie() throws Exception {
+        String loginUrl = "https://plutoadmin.sojump.cn/Home/LoginJson";
+        String UserName = "971012568@qq.com";
+        String Password = "pa84AWwos/o6kmtmqMeaWPCxlvY4v/7ZnFffRFPquEoaqY60CYtLFsgqABr7UUwI7o4g4F4qaX/APjV+Kuxc3g==";
+        HashMap<String, Object> params = new HashMap<>();
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Content-Type","multipart/form-data;");
+        headers.put("Cookie",".AspNetCore.Cookies=CfDJ8BXrHl3Xiy1ClB-Ne7CKSpGI8WGHnEBCFdwghcQJWIzo-FdAjNaePthZ2tZl-9PfQ34_I_OVaPE5PGjlDXUy5bfHGzOg2ou3Ag572A_njW8DN3-hvmDziZDMT4uOw9vSAWNOeE56UPEs_gwABNfuJDdKplPKDlQPUOGMvhsgXvTSTUra76IXutkQ0QxUzIKpReA7Ngn5Imx3MJi3YgvtRm2Uyf0JKsjO8YMZfhcIMjy2A04kgJ9EkgORq0Z1wcaVh2Hbat1U1hFi5v3kDjh8YAbDXoKkJjcUiB4Aig4yxH_rvJTVsoDWMnF1n9Q9Rlx8eshyoqNCU0LLjIFBW-BXE8izPdEKWDoOOJrpzIP1LCC90uTnrIkRJ1EvRZQrfqdoOUVorXo53-DsuTr3lyw7m-7BIfboyKSdXuTyJbqMbYrs_89JotTJi57EPYQRJCwRT67U6pn74zep7Vvx9YS1JJrxTFLftPH2is5knKlfEPNz9JYBaljiXOwoN8izQ7Dd5TQ4Jc_ShHNBQ1zHhdNeaLP6We0n4IJCvnytb_tQBduS; expires=Wed, 17 Jan 2024 05:30:54 GMT; path=/; samesite=lax; httponly");
+        params.put("UserName",UserName);
+        params.put("Password",Password);
+        System.out.println(params.toString());
+        JSONObject jsonObject = new JSONObject(params);
+        String post = OkHttpUtil.post_fd(new OkHttpClient(), loginUrl, jsonObject, Headers.of(headers));
+//        System.out.println(post);
+        return post;
+    }
+
+    public static String encryptoPw(String passwod) throws NoSuchAlgorithmException, InvalidKeySpecException, NoSuchPaddingException, InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+        // 已知公钥字符串
+        String publicKeyString = "-----BEGIN PUBLIC KEY-----\n" +
+                "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMBOaPaQqhDugAWs633nE3hadm8K6HDYias7sOxd1rj1iXxl0fikWnXfVYsDnBn/DVrvxnCXwD9/JhieBvcqQcsCAwEAAQ==\n" +
+                "-----END PUBLIC KEY-----";
+
+        // 将公钥字符串解码为字节数组
+        byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyString
+                .replace("-----BEGIN PUBLIC KEY-----\n", "")
+                .replace("-----END PUBLIC KEY-----", "")
+                .replaceAll("\\s", ""));
+
+        // 使用 X509EncodedKeySpec 将公钥字节数组转换为 PublicKey 对象
+        X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKeyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        PublicKey publicKey = keyFactory.generatePublic(keySpec);
+
+        // 准备待加密的数据和密码
+
+        byte[] passwordBytes = passwod.getBytes(StandardCharsets.UTF_8);
+
+        // 使用 RSA 加密算法和 PKCS1v15 填充模式进行加密
+        Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
+        cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+        byte[] encryptedBytes = cipher.doFinal(passwordBytes);
+
+        // 将加密后的数据进行 Base64 编码
+        String encryptedData = Base64.getEncoder().encodeToString(encryptedBytes);
+
+        System.out.println("加密前的数据：" + passwod);
+        System.out.println("加密后的数据：" + encryptedData);
+        return encryptedData;
+
+
+    }
+    public static String getToken(String UserName,String pw) throws Exception {
+        String loginUrl = "https://plutoapi.sojump.cn/account/login";
+        String Password = encryptoPw(pw);
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("UserName",UserName);
+        params.put("Password",Password);
+        JSONObject jsonObject = new JSONObject(params);
+        String post = OkHttpUtil.post(new OkHttpClient(), loginUrl, jsonObject);
+        JSONObject jsonObject1 = JSONObject.parseObject(post);
+        return jsonObject1.getJSONObject("data").getString("token");
+    }
+
+    public static String getxmlData(String cookie,String activityId) throws Exception {
+        String xmlUrl = "https://plutoadmin.sojump.cn/Activity/GetActivityXML?activityId="+activityId;
+        HashMap<String, String> headers = new HashMap<>();
+        headers.put("Cookie",cookie);
+        System.out.println(headers.toString());
+        String getdata = OkHttpUtil.get(new OkHttpClient(), xmlUrl, Headers.of(headers));
+        JSONObject jsonObject = JSONObject.parseObject(getdata);
+        String data = jsonObject.getString("Data");
+
+        return data;
+    }
+
+
+    public static String getResponseData(String xmlStr) throws JsonProcessingException {
+        XmlMapper xmlMapper = new XmlMapper();
+        ObjectMapper jsonMapper = new ObjectMapper();
+        jsonMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        Object obj = xmlMapper.readValue(xmlStr, Object.class);
+        String jsonStr = jsonMapper.writeValueAsString(obj);
+//        System.out.println(jsonStr);
+        ObjectMapper mapper = new ObjectMapper();
+        JSONObject jsonObject = JSONObject.parseObject(jsonStr);
+        JSONArray question = jsonObject.getJSONArray("Question");
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < question.size(); i++) {
+
+            JSONObject jsonObject1 = JSONObject.parseObject(question.getString(i));
+            if ("radio".equals(jsonObject1.getString("Type"))) {
+                stringBuilder.append(i+"$");
+                JSONArray itemlist = jsonObject1.getJSONArray("Item");
+                int item = itemlist.size();
+                Random random = new Random();
+                int randomNumber = random.nextInt(item); // 生成 0 到 99 之间的随机整数
+                stringBuilder.append(randomNumber+1);
+                Object  o1 =  itemlist.get(randomNumber);
+                JSONObject jsonObjecto1 = JSONObject.parseObject(o1.toString());
+                if ("true".equals(jsonObjecto1.getString("ItemTextBox"))) {
+                    stringBuilder.append("^填空"+i);
+                    System.out.println("我填入了对应数据："+randomNumber);
+                }
+                System.out.println(randomNumber);
+                stringBuilder.append("}");
+            }
+        }
+        stringBuilder.deleteCharAt(stringBuilder.length() - 1);
+        return stringBuilder.toString();
+    }
+
+
+    public static String getAnswer(String token,String submitdata,String starttime,String activityId) throws IOException {
+        String answerUrl= "https://plutowww.sojump.cn/join/submit?activityid="+activityId+"&starttime="+starttime+"&token="+token;
+        System.out.println(answerUrl);
+        HashMap<String, String> headers = new HashMap<>();
+//        headers.put("Cookie",cookie);
+        HashMap<String, Object> data = new HashMap<>();
+        data.put("submitdata",submitdata);
+        JSONObject jsonObject = new JSONObject(data);
+        String post = OkHttpUtil.post_urlencoded(new OkHttpClient(), answerUrl, jsonObject,Headers.of());
+//        System.out.println(post);
+        return post;
+    }
+}

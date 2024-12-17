@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.autotest.LiuMa.database.mapper.TesterOrderMapper">
+    <insert id="addTesterOrder" parameterType="com.autotest.LiuMa.database.domain.TesterOrder">
+        insert into tester_order(ranker,run_time,frequency,jobId) values (#{ranker},#{runTime},#{frequency},#{jobId})
+    </insert>
+
+    <update id="updateTesterOrder" parameterType="com.autotest.LiuMa.database.domain.TesterOrder">
+    update tester_order set
+      <if test="runTime!=null and runTime !=''">
+        run_time= #{runTime},
+      </if>
+      <if test="frequency!=null and frequency !=''">
+        frequency= #{frequency},
+      </if>
+        <if test="ranker!=null and ranker !=''">
+            ranker= #{ranker},
+        </if>
+        <if test="status!=null and status !=''">
+            status= #{status},
+        </if>
+        <if test="deleted!=null and deleted !=''">
+            deleted= #{deleted}
+        </if>
+
+    where id = #{id}
+  </update>
+
+
+  <select id="getAllTesterOrder"  resultType="com.autotest.LiuMa.database.domain.TesterOrder">
+    select * from tester_order where deleted="0"
+  </select>
+
+  <select id="getTesterOrderById"  resultType="com.autotest.LiuMa.database.domain.TesterOrder">
+    select * from tester_order where id = #{id} and deleted="0"
+  </select>
+
+<select id="getTesterOrderByJobId" resultType="com.autotest.LiuMa.database.domain.TesterOrder">
+    select * from tester_order where
+    <if test="jobId!=null and jobId !=''">
+        jobId= #{jobId}
+    </if>
+     and deleted="0"
+</select>
+
+
+</mapper>

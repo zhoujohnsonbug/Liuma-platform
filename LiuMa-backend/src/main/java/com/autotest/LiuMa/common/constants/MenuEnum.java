@@ -23,7 +23,11 @@ public enum MenuEnum {
     SYSTEM(600,"系统管理", "icon-xitongguanli", null, null, null),
     USER(611,"用户管理", "icon-yonghuguanli", "/systemManage/user", SYSTEM, PermissionEnum.USER_MENU),
     ROLE(621,"角色管理", "icon-jiaoseguanli", "/systemManage/role", SYSTEM, PermissionEnum.ROLE_MENU),
-    PROJECT(631,"项目管理", "icon-xiangmuguanli", "/systemManage/project", SYSTEM, PermissionEnum.PROJECT_MENU);
+    PROJECT(631,"项目管理", "icon-xiangmuguanli", "/systemManage/project", SYSTEM, PermissionEnum.PROJECT_MENU),
+
+    TESTMANAGE(700,"测试工具", "icon-ceshiguanligongju", null, null, null),
+    TESTERORDER(710,"测试者通知", "icon-ceshizhetongzhi", "/testManage/testerNotification", TESTMANAGE, PermissionEnum.NORMAL_MENU),
+    TESTTOOLSCOLLECT(712,"测试工具集", "icon-testToolsCollect", "/testManage/testToolsCollect", TESTMANAGE, PermissionEnum.NORMAL_MENU);
 
     public final Integer id;
     public final String name;
